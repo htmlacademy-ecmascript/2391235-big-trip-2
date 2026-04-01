@@ -11,6 +11,12 @@ const trainOffer1 = generateOffer('First class');
 const trainOffer2 = generateOffer('Meal');
 const trainOffer3 = generateOffer('Window seat');
 
+const shipOffer1 = generateOffer('Cabin upgrade');
+const shipOffer2 = generateOffer('Meal included');
+
+const driveOffer1 = generateOffer('Rent car');
+const driveOffer2 = generateOffer('GPS navigation');
+
 const flightOffer1 = generateOffer('Add luggage');
 const flightOffer2 = generateOffer('Switch to comfort');
 const flightOffer3 = generateOffer('Choose seat');
@@ -29,6 +35,8 @@ const offers = [
   generateOffersByType('taxi', [taxiOffer1, taxiOffer2, taxiOffer3]),
   generateOffersByType('bus', [busOffer1, busOffer2]),
   generateOffersByType('train', [trainOffer1, trainOffer2, trainOffer3]),
+  generateOffersByType('ship', [shipOffer1, shipOffer2]),
+  generateOffersByType('drive', [driveOffer1, driveOffer2]),
   generateOffersByType('flight', [flightOffer1, flightOffer2, flightOffer3, flightOffer4]),
   generateOffersByType('check-in', [checkInOffer1, checkInOffer2]),
   generateOffersByType('sightseeing', [sightseeingOffer1, sightseeingOffer2]),

@@ -1,14 +1,14 @@
 import {render, RenderPosition} from '../render.js';
 import FiltersView from '../view/filters-view.js';
 import SortView from '../view/sort-view.js';
-import PointView from '../view/point-view.js';
-import EditPointView from '../view/edit-point-view.js';
+import PointPresenter from './point-presenter.js';
 
 export default class TripPresenter {
   #tripControlsFiltersContainer = null;
   #tripEventsContainer = null;
   #tripEventsListContainer = null;
   #pointModel = null;
+  #pointPresenters = [];
 
   constructor({tripControlsFiltersContainer, tripEventsContainer, tripEventsListContainer, pointModel}) {
     this.#tripControlsFiltersContainer = tripControlsFiltersContainer;
@@ -48,25 +48,19 @@ export default class TripPresenter {
     render(new FiltersView(), this.#tripControlsFiltersContainer);
     render(new SortView(), this.#tripEventsContainer, RenderPosition.AFTERBEGIN);
 
-    const firstPoint = this.#createPointForView(this.#pointModel.points[0]);
-
-    render(
-      new EditPointView({
-        point: firstPoint,
-        destinations: this.#pointModel.destinations,
-        offersByType: this.#pointModel.offers
-      }),
-      this.#tripEventsListContainer,
-      RenderPosition.AFTERBEGIN
-    );
-
-    this.#pointModel.points.forEach((point) => {
+    this.#pointModel.points.forEach((point, index) => {
       const pointForView = this.#createPointForView(point);
 
-      render(
-        new PointView({point: pointForView}),
-        this.#tripEventsListContainer
-      );
+      const pointPresenter = new PointPresenter({
+        container: this.#tripEventsListContainer,
+        point: pointForView,
+        destinations: this.#pointModel.destinations,
+        offersByType: this.#pointModel.offers,
+        isEditMode: index === 0
+      });
+
+      pointPresenter.init();
+      this.#pointPresenters.push(pointPresenter);
     });
   }
 }

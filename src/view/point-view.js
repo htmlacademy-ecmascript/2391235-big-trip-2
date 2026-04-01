@@ -1,33 +1,29 @@
 import AbstractView from './abstract-view.js';
 
-function formatDate(date) {
+function formatTime(date) {
   if (!date) {
     return '';
   }
 
   const currentDate = new Date(date);
 
-  const day = String(currentDate.getDate()).padStart(2, '0');
-  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-  const year = currentDate.getFullYear();
-
   const hours = String(currentDate.getHours()).padStart(2, '0');
   const minutes = String(currentDate.getMinutes()).padStart(2, '0');
 
-  return `${day}/${month}/${year} ${hours}:${minutes}`;
+  return `${hours}:${minutes}`;
 }
+
 function formatPointDate(date) {
   if (!date) {
     return '';
   }
 
   const currentDate = new Date(date);
-
   const day = String(currentDate.getDate()).padStart(2, '0');
-  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-  const year = currentDate.getFullYear();
+  const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+  const month = monthNames[currentDate.getMonth()];
 
-  return `${day}/${month}/${year}`;
+  return `${month} ${day}`;
 }
 
 function formatDuration(dateFrom, dateTo) {
@@ -72,7 +68,9 @@ function createPointTemplate(point) {
   const offersTemplate = createOffersTemplate(offers);
   const duration = formatDuration(dateFrom, dateTo);
 
-  return `<li class="trip-events__item">
+  return (
+    `
+    <li class="trip-events__item">
     <div class="event">
       <time class="event__date" datetime="${dateFrom}">${formatPointDate(dateFrom)}</time>
       <div class="event__type">
@@ -87,9 +85,9 @@ function createPointTemplate(point) {
       <h3 class="event__title">${type} ${destination.name}</h3>
       <div class="event__schedule">
         <p class="event__time">
-          <time class="event__start-time" datetime="${dateFrom}">${formatDate(dateFrom)}</time>
+          <time class="event__start-time" datetime="${dateFrom}">${formatTime(dateFrom)}</time>
           &mdash;
-          <time class="event__end-time" datetime="${dateTo}">${formatDate(dateTo)}</time>
+          <time class="event__end-time" datetime="${dateTo}">${formatTime(dateTo)}</time>
         </p>
         <p class="event__duration">${duration}</p>
       </div>
@@ -110,7 +108,9 @@ function createPointTemplate(point) {
         <span class="visually-hidden">Open event</span>
       </button>
     </div>
-  </li>`;
+  </li>
+  `
+  );
 }
 
 export default class PointView extends AbstractView {
