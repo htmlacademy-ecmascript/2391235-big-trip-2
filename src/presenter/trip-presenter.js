@@ -1,4 +1,4 @@
-import {render, RenderPosition} from '../render.js';
+import {render, RenderPosition} from '../framework/render.js';
 import FiltersView from '../view/filters-view.js';
 import SortView from '../view/sort-view.js';
 import PointPresenter from './point-presenter.js';
@@ -48,15 +48,14 @@ export default class TripPresenter {
     render(new FiltersView(), this.#tripControlsFiltersContainer);
     render(new SortView(), this.#tripEventsContainer, RenderPosition.AFTERBEGIN);
 
-    this.#pointModel.points.forEach((point, index) => {
+    this.#pointModel.points.forEach((point) => {
       const pointForView = this.#createPointForView(point);
 
       const pointPresenter = new PointPresenter({
         container: this.#tripEventsListContainer,
         point: pointForView,
         destinations: this.#pointModel.destinations,
-        offersByType: this.#pointModel.offers,
-        isEditMode: index === 0
+        offersByType: this.#pointModel.offers
       });
 
       pointPresenter.init();
