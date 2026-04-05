@@ -1,4 +1,4 @@
-import AbstractView from './abstract-view.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const EVENT_TYPES = [
   'taxi',
@@ -237,8 +237,10 @@ export default class EditPointView extends AbstractView {
   #point = null;
   #destinations = null;
   #formId = null;
+  #onFormSubmit = null;
+  #onRollupClick = null;
 
-  constructor({point, destinations} = {}) {
+  constructor({point, destinations, onFormSubmit, onRollupClick} = {}) {
     super();
     this.#formId = crypto.randomUUID();
     this.#point = point || {
@@ -254,6 +256,11 @@ export default class EditPointView extends AbstractView {
       offers: []
     };
     this.#destinations = destinations || [];
+    this.#onFormSubmit = onFormSubmit;
+    this.#onRollupClick = onRollupClick;
+
+    this.element.addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollupClickHandler);
   }
 
   get template() {
@@ -261,7 +268,7 @@ export default class EditPointView extends AbstractView {
   }
 
   setTypeChangeHandler(callback) {
-    const typeGroupElement = this.getElement().querySelector('.event__type-group');
+    const typeGroupElement = this.element.querySelector('.event__type-group');
 
     if (typeGroupElement) {
       typeGroupElement.addEventListener('change', (evt) => {
@@ -269,4 +276,18 @@ export default class EditPointView extends AbstractView {
       });
     }
   }
+
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    if (this.#onFormSubmit) {
+      this.#onFormSubmit();
+    }
+  };
+
+  #rollupClickHandler = (evt) => {
+    evt.preventDefault();
+    if (this.#onRollupClick) {
+      this.#onRollupClick();
+    }
+  };
 }

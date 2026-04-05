@@ -1,10 +1,4 @@
-import AbstractView from './abstract-view.js';
-
-/**
- * Filters View
- * Блок фильтров событий (Everything / Future / Past)
- * Источник: markup/list-filter.html
- */
+import AbstractView from '../framework/view/abstract-view.js';
 
 function createFiltersTemplate() {
   return (

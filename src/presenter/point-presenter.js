@@ -1,23 +1,21 @@
+import {render, replace} from '../framework/render.js';
 import PointView from '../view/point-view.js';
 import EditPointView from '../view/edit-point-view.js';
-import {render, RenderPosition} from '../render.js';
 
 export default class PointPresenter {
   #container = null;
   #point = null;
   #destinations = null;
   #offersByType = null;
-  #isEditMode = false;
 
   #pointComponent = null;
   #editPointComponent = null;
 
-  constructor({container, point, destinations, offersByType, isEditMode = false}) {
+  constructor({container, point, destinations, offersByType}) {
     this.#container = container;
     this.#point = point;
     this.#destinations = destinations;
     this.#offersByType = offersByType;
-    this.#isEditMode = isEditMode;
   }
 
   init() {
@@ -25,38 +23,21 @@ export default class PointPresenter {
   }
 
   #renderPoint() {
-    this.#pointComponent = new PointView({point: this.#point});
+    this.#pointComponent = new PointView({
+      point: this.#point,
+      onEditClick: this.#replacePointToForm
+    });
+
     this.#editPointComponent = new EditPointView({
       point: this.#point,
-      destinations: this.#destinations
+      destinations: this.#destinations,
+      onFormSubmit: this.#replaceFormToPoint,
+      onRollupClick: this.#replaceFormToPoint
     });
 
     this.#editPointComponent.setTypeChangeHandler(this.#handleTypeChange);
 
-    if (this.#isEditMode) {
-      render(this.#editPointComponent, this.#container, RenderPosition.BEFOREEND);
-    } else {
-      render(this.#pointComponent, this.#container, RenderPosition.BEFOREEND);
-    }
-
-    this.#setPointHandlers();
-    this.#setEditFormHandlers();
-  }
-
-  #setPointHandlers() {
-    const rollupButton = this.#pointComponent.getElement().querySelector('.event__rollup-btn');
-
-    if (rollupButton) {
-      rollupButton.addEventListener('click', this.#replacePointToForm);
-    }
-  }
-
-  #setEditFormHandlers() {
-    const rollupButton = this.#editPointComponent.getElement().querySelector('.event__rollup-btn');
-
-    if (rollupButton) {
-      rollupButton.addEventListener('click', this.#replaceFormToPoint);
-    }
+    render(this.#pointComponent, this.#container);
   }
 
   #getOffersForType(type, checkedOfferIds = []) {
@@ -78,11 +59,13 @@ export default class PointPresenter {
   }
 
   #replacePointToForm = () => {
-    this.#pointComponent.getElement().replaceWith(this.#editPointComponent.getElement());
+    replace(this.#editPointComponent, this.#pointComponent);
+    document.addEventListener('keydown', this.#escKeyDownHandler);
   };
 
   #replaceFormToPoint = () => {
-    this.#editPointComponent.getElement().replaceWith(this.#pointComponent.getElement());
+    replace(this.#pointComponent, this.#editPointComponent);
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
   #handleTypeChange = (newType) => {
@@ -91,21 +74,31 @@ export default class PointPresenter {
     const prevEditComponent = this.#editPointComponent;
     const prevPointComponent = this.#pointComponent;
 
-    this.#pointComponent = new PointView({point: this.#point});
+    this.#pointComponent = new PointView({
+      point: this.#point,
+      onEditClick: this.#replacePointToForm
+    });
+
     this.#editPointComponent = new EditPointView({
       point: this.#point,
-      destinations: this.#destinations
+      destinations: this.#destinations,
+      onFormSubmit: this.#replaceFormToPoint,
+      onRollupClick: this.#replaceFormToPoint
     });
 
     this.#editPointComponent.setTypeChangeHandler(this.#handleTypeChange);
 
-    prevEditComponent.getElement().replaceWith(this.#editPointComponent.getElement());
+    replace(this.#editPointComponent, prevEditComponent);
 
-    if (prevPointComponent.getElement().isConnected) {
-      prevPointComponent.getElement().replaceWith(this.#pointComponent.getElement());
+    if (prevPointComponent.element.isConnected) {
+      replace(this.#pointComponent, prevPointComponent);
     }
+  };
 
-    this.#setPointHandlers();
-    this.#setEditFormHandlers();
+  #escKeyDownHandler = (evt) => {
+    if (evt.key === 'Escape') {
+      evt.preventDefault();
+      this.#replaceFormToPoint();
+    }
   };
 }

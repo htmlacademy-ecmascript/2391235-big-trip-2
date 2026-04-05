@@ -1,10 +1,4 @@
-import AbstractView from './abstract-view.js';
-
-/**
- * New Point View
- * Форма создания нового события
- * Источник: markup/add-new-point.html
- */
+import AbstractView from '../framework/view/abstract-view.js';
 
 function createNewPointTemplate() {
   return (

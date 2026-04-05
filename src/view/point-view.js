@@ -1,4 +1,4 @@
-import AbstractView from './abstract-view.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 function formatTime(date) {
   if (!date) {
@@ -115,13 +115,23 @@ function createPointTemplate(point) {
 
 export default class PointView extends AbstractView {
   #point = null;
+  #onEditClick = null;
 
-  constructor({point}) {
+  constructor({point, onEditClick}) {
     super();
     this.#point = point;
+    this.#onEditClick = onEditClick;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
   }
 
   get template() {
     return createPointTemplate(this.#point);
   }
+
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    if (this.#onEditClick) {
+      this.#onEditClick();
+    }
+  };
 }
