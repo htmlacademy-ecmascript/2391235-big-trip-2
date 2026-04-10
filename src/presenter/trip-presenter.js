@@ -1,6 +1,7 @@
 import {render, RenderPosition} from '../framework/render.js';
 import FiltersView from '../view/filters-view.js';
 import SortView from '../view/sort-view.js';
+import EmptyPointListView from '../view/empty-point-list-view.js';
 import PointPresenter from './point-presenter.js';
 
 export default class TripPresenter {
@@ -9,6 +10,7 @@ export default class TripPresenter {
   #tripEventsListContainer = null;
   #pointModel = null;
   #pointPresenters = [];
+  #emptyPointListComponent = new EmptyPointListView();
 
   constructor({tripControlsFiltersContainer, tripEventsContainer, tripEventsListContainer, pointModel}) {
     this.#tripControlsFiltersContainer = tripControlsFiltersContainer;
@@ -45,7 +47,13 @@ export default class TripPresenter {
   }
 
   init() {
-    render(new FiltersView(), this.#tripControlsFiltersContainer);
+    render(new FiltersView({points: this.#pointModel.points}), this.#tripControlsFiltersContainer);
+
+    if (this.#pointModel.points.length === 0) {
+      render(this.#emptyPointListComponent, this.#tripEventsListContainer);
+      return;
+    }
+
     render(new SortView(), this.#tripEventsContainer, RenderPosition.AFTERBEGIN);
 
     this.#pointModel.points.forEach((point) => {
