@@ -23,16 +23,23 @@ const generateOffersByType = (type, offers) => ({
   offers
 });
 
-const generatePoint = (type, destinationId, offerIds) => ({
-  id: getRandomId(),
-  basePrice: Math.floor(Math.random() * 200) + 1,
-  dateFrom: '2025-03-18T10:30:00.000Z',
-  dateTo: '2025-03-18T11:00:00.000Z',
-  destinationId,
-  isFavorite: false,
-  offerIds,
-  type
-});
+const generatePoint = (type, destinationId, offerIds) => {
+  const now = Date.now();
+  const randomShift = Math.floor((Math.random() * 3) - 1) * 24 * 60 * 60 * 1000;
+  const startDate = new Date(now + randomShift);
+  const endDate = new Date(startDate.getTime() + 30 * 60 * 1000);
+
+  return {
+    id: getRandomId(),
+    basePrice: Math.floor(Math.random() * 200) + 1,
+    dateFrom: startDate.toISOString(),
+    dateTo: endDate.toISOString(),
+    destinationId,
+    isFavorite: false,
+    offerIds,
+    type
+  };
+};
 
 export {
   generateDestination,
