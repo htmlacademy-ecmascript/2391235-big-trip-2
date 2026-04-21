@@ -115,9 +115,12 @@ export default class PointPresenter {
   #handleFavoriteClick = () => {
     this.#onDataChange({
       ...this.#point,
-      //destination: {...this.#point.destination},
-      //offers: this.#point.offers.map((offer) => ({...offer})),
       isFavorite: !this.#point.isFavorite
     });
   };
+
+  destroy() {
+    this.#pointComponent.removeElement();
+    this.#editPointComponent.removeElement();
+  }
 }
