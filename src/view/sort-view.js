@@ -1,11 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
 
-/**
- * Sort View
- * Блок сортировки событий (Day / Time / Price)
- * Источник: markup/list-sort.html
- */
-
 function createSortTemplate() {
   return (
     `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
@@ -16,6 +10,7 @@ function createSortTemplate() {
           type="radio"
           name="trip-sort"
           value="sort-day"
+          data-sort-type="day"
           checked
         >
         <label class="trip-sort__btn" for="sort-day">Day</label>
@@ -28,6 +23,7 @@ function createSortTemplate() {
           type="radio"
           name="trip-sort"
           value="sort-event"
+          data-sort-type="event"
           disabled
         >
         <label class="trip-sort__btn" for="sort-event">Event</label>
@@ -40,6 +36,7 @@ function createSortTemplate() {
           type="radio"
           name="trip-sort"
           value="sort-time"
+          data-sort-type="time"
         >
         <label class="trip-sort__btn" for="sort-time">Time</label>
       </div>
@@ -51,6 +48,7 @@ function createSortTemplate() {
           type="radio"
           name="trip-sort"
           value="sort-price"
+          data-sort-type="price"
         >
         <label class="trip-sort__btn" for="sort-price">Price</label>
       </div>
@@ -62,6 +60,7 @@ function createSortTemplate() {
           type="radio"
           name="trip-sort"
           value="sort-offer"
+          data-sort-type="offer"
           disabled
         >
         <label class="trip-sort__btn" for="sort-offer">Offers</label>
@@ -71,7 +70,26 @@ function createSortTemplate() {
 }
 
 export default class SortView extends AbstractView {
+  #sortTypeChangeHandler = null;
+
+  constructor({onSortTypeChange}) {
+    super();
+    this.#sortTypeChangeHandler = onSortTypeChange;
+    this.element.addEventListener('change', this.#sortTypeChange);
+  }
+
   get template() {
     return createSortTemplate();
   }
+
+  #sortTypeChange = (evt) => {
+    if (!evt.target.matches('.trip-sort__input')) {
+      return;
+    }
+
+    const sortType = evt.target.dataset.sortType;
+    if (this.#sortTypeChangeHandler) {
+      this.#sortTypeChangeHandler(sortType);
+    }
+  };
 }
