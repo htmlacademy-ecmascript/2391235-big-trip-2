@@ -3,19 +3,7 @@ import FiltersView from '../view/filters-view.js';
 import SortView from '../view/sort-view.js';
 import EmptyPointListView from '../view/empty-point-list-view.js';
 import PointPresenter from './point-presenter.js';
-
-const FilterType = {
-  EVERYTHING: 'everything',
-  FUTURE: 'future',
-  PRESENT: 'present',
-  PAST: 'past'
-};
-
-const SortType = {
-  DAY: 'day',
-  TIME: 'time',
-  PRICE: 'price'
-};
+import {FilterType, SortType} from '../const.js';
 
 const filterConfig = {
   [FilterType.EVERYTHING]: {
@@ -63,10 +51,6 @@ function sortPointByTime(pointA, pointB) {
   const durationB = new Date(pointB.dateTo) - new Date(pointB.dateFrom);
 
   return durationB - durationA;
-}
-
-function sortPointByPrice(pointA, pointB) {
-  return pointB.basePrice - pointA.basePrice;
 }
 
 export default class TripPresenter {
@@ -142,6 +126,7 @@ export default class TripPresenter {
     }
 
     this.#sortComponent = new SortView({
+      currentSortType: this.#currentSortType,
       onSortTypeChange: this.#handleSortTypeChange
     });
 
@@ -161,7 +146,7 @@ export default class TripPresenter {
         sortedPoints.sort(sortPointByTime);
         break;
       case SortType.PRICE:
-        sortedPoints.sort(sortPointByPrice);
+        sortedPoints.sort((pointA, pointB) => pointB.basePrice - pointA.basePrice);
         break;
       case SortType.DAY:
         sortedPoints.sort(sortPointByDay);
@@ -205,8 +190,6 @@ export default class TripPresenter {
     this.#points = this.#points.map((point) =>
       point.id === nextPoint.id ? nextPoint : point
     );
-    /*const pointForView = this.#createPointForView(nextPoint);
-    this.#pointPresenters.get(nextPoint.id).init(pointForView);*/
 
     const pointForView = this.#createPointForView(nextPoint);
     this.#pointPresenters.get(nextPoint.id).init(pointForView);
