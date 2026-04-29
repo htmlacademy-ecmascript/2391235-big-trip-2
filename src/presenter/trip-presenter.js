@@ -3,13 +3,7 @@ import FiltersView from '../view/filters-view.js';
 import SortView from '../view/sort-view.js';
 import EmptyPointListView from '../view/empty-point-list-view.js';
 import PointPresenter from './point-presenter.js';
-
-const FilterType = {
-  EVERYTHING: 'everything',
-  FUTURE: 'future',
-  PRESENT: 'present',
-  PAST: 'past'
-};
+import {FilterType, SortType} from '../const.js';
 
 const filterConfig = {
   [FilterType.EVERYTHING]: {
@@ -47,6 +41,18 @@ function isPastPoint(point) {
   const now = new Date();
   return new Date(point.dateTo) < now;
 }
+
+function sortPointByDay(pointA, pointB) {
+  return new Date(pointA.dateFrom) - new Date(pointB.dateFrom);
+}
+
+function sortPointByTime(pointA, pointB) {
+  const durationA = new Date(pointA.dateTo) - new Date(pointA.dateFrom);
+  const durationB = new Date(pointB.dateTo) - new Date(pointB.dateFrom);
+
+  return durationB - durationA;
+}
+
 export default class TripPresenter {
   #tripControlsFiltersContainer = null;
   #tripEventsContainer = null;
@@ -57,6 +63,10 @@ export default class TripPresenter {
   #emptyPointListComponent = new EmptyPointListView({
     message: 'Click New Event to create your first point'
   });
+
+  #currentSortType = SortType.DAY;
+
+  #sortComponent = null;
 
   constructor({tripControlsFiltersContainer, tripEventsContainer, tripEventsListContainer, pointModel}) {
     this.#tripControlsFiltersContainer = tripControlsFiltersContainer;
@@ -115,7 +125,12 @@ export default class TripPresenter {
       return;
     }
 
-    render(new SortView(), this.#tripEventsContainer, RenderPosition.AFTERBEGIN);
+    this.#sortComponent = new SortView({
+      currentSortType: this.#currentSortType,
+      onSortTypeChange: this.#handleSortTypeChange
+    });
+
+    render(this.#sortComponent, this.#tripEventsContainer, RenderPosition.AFTERBEGIN);
     this.#renderPoints();
   }
 
@@ -124,7 +139,21 @@ export default class TripPresenter {
   };
 
   #renderPoints() {
-    this.#points.forEach((point) => {
+    const sortedPoints = [...this.#points];
+
+    switch (this.#currentSortType) {
+      case SortType.TIME:
+        sortedPoints.sort(sortPointByTime);
+        break;
+      case SortType.PRICE:
+        sortedPoints.sort((pointA, pointB) => pointB.basePrice - pointA.basePrice);
+        break;
+      case SortType.DAY:
+        sortedPoints.sort(sortPointByDay);
+        break;
+    }
+
+    sortedPoints.forEach((point) => {
       const pointForView = this.#createPointForView(point);
 
       const pointPresenter = new PointPresenter({
@@ -165,4 +194,21 @@ export default class TripPresenter {
     const pointForView = this.#createPointForView(nextPoint);
     this.#pointPresenters.get(nextPoint.id).init(pointForView);
   };
+
+  #handleSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#currentSortType = sortType;
+    this.#clearPointList();
+    this.#renderPoints();
+  };
+
+  #clearPointList() {
+    this.#pointPresenters.forEach((presenter) => presenter.destroy());
+    this.#pointPresenters.clear();
+
+    this.#tripEventsListContainer.innerHTML = '';
+  }
 }
